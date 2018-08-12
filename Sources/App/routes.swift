@@ -2,6 +2,9 @@ import Vapor
 
 /// Register your application's routes here.
 public func routes(_ router: Router) throws {
+    let entryPointController = EntryPointController()
+    
+    router.get("/", use: entryPointController.index)
     
     let builderController = BuilderController()
     
