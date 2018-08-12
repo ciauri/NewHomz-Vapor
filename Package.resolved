@@ -47,12 +47,12 @@
         }
       },
       {
-        "package": "FluentSQLite",
-        "repositoryURL": "https://github.com/vapor/fluent-sqlite.git",
+        "package": "FluentMySQL",
+        "repositoryURL": "https://github.com/vapor/fluent-mysql.git",
         "state": {
           "branch": null,
-          "revision": "c32f5bda84bf4ea691d19afe183d40044f579e11",
-          "version": "3.0.0"
+          "revision": "2e2f6ea6a97d0b352cf55e6ec289dc1276a6b31a",
+          "version": "3.0.1"
         }
       },
       {
@@ -70,6 +70,15 @@
         "state": {
           "branch": null,
           "revision": "e57007c23a52b68e44ebdfc70cbe882a7c4f1ec3",
+          "version": "3.0.2"
+        }
+      },
+      {
+        "package": "MySQL",
+        "repositoryURL": "https://github.com/vapor/mysql.git",
+        "state": {
+          "branch": null,
+          "revision": "448f1ca28b3ea0f64a627bec22e5b0945d31b9f4",
           "version": "3.0.2"
         }
       },
@@ -101,21 +110,12 @@
         }
       },
       {
-        "package": "SQLite",
-        "repositoryURL": "https://github.com/vapor/sqlite.git",
-        "state": {
-          "branch": null,
-          "revision": "635ad49b2d6395b63462abffcce58ee38be1e4cc",
-          "version": "3.0.0"
-        }
-      },
-      {
         "package": "swift-nio",
         "repositoryURL": "https://github.com/apple/swift-nio.git",
         "state": {
           "branch": null,
-          "revision": "695afc5205aaa49fca092b94b479ff71c43d9d3c",
-          "version": "1.8.0"
+          "revision": "cf08e673dc41dc63d34065234c8fc432e8d334c4",
+          "version": "1.9.2"
         }
       },
       {
@@ -146,12 +146,21 @@
         }
       },
       {
+        "package": "SWXMLHash",
+        "repositoryURL": "https://github.com/drmohundro/SWXMLHash.git",
+        "state": {
+          "branch": null,
+          "revision": "24698592b581aef2bdbfc86ce18695708038c624",
+          "version": "4.7.1"
+        }
+      },
+      {
         "package": "TemplateKit",
         "repositoryURL": "https://github.com/vapor/template-kit.git",
         "state": {
           "branch": null,
-          "revision": "43b57b5861d5181b906ac6411d28645e980bb638",
-          "version": "1.0.1"
+          "revision": "db35b1c35aabd0f5db3abca0cfda7becfe9c43e2",
+          "version": "1.1.0"
         }
       },
       {
@@ -168,8 +177,8 @@
         "repositoryURL": "https://github.com/vapor/validation.git",
         "state": {
           "branch": null,
-          "revision": "ab6c5a352d97c8687b91ed4963aef8e7cfe0795b",
-          "version": "2.0.0"
+          "revision": "156f8adeac3440e868da3757777884efbc6ec0cc",
+          "version": "2.1.0"
         }
       },
       {

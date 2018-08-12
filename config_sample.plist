@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>db_hostname</key>
+	<string>vape.it.up</string>
+	<key>db_password</key>
+	<string>420420</string>
+	<key>db_user</key>
+	<string>vape_naysh_420</string>
+	<key>db_schema</key>
+	<string>newhomz</string>
+	<key>db_port</key>
+	<string>4204</string>
+</dict>
+</plist>
