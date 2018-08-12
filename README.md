@@ -18,3 +18,6 @@
         <img src="http://img.shields.io/badge/swift-4.1-brightgreen.svg" alt="Swift 4.1">
     </a>
 </p>
+
+# Test Deployment
+You can hit up the [sample environment](https://api.newhomz.com) if you want to see this puppy in action with a live database
