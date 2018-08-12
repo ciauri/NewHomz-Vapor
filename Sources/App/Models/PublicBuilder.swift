@@ -16,6 +16,7 @@ struct PublicBuilder: Content {
     let adsEnabled: Bool
     let website: String?
     let phoneNumber: String?
+    
     var listingCount: Int?
     var links: [String:String]?
 }

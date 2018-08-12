@@ -47,6 +47,9 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     var migrations = MigrationConfig()
     migrations.add(model: DBBuilder.self, database: .mysql)
     migrations.add(model: DBListing.self, database: .mysql)
+    migrations.add(model: DBGalleryImage.self, database: .mysql)
+    migrations.add(model: DBFloorplanImage.self, database: .mysql)
+
     services.register(migrations)
 
 }

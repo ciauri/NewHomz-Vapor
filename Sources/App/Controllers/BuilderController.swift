@@ -20,7 +20,7 @@ final class BuilderController {
             .alsoDecode(DBListing.self)
             .all()
             .then({ (resultArray) -> EventLoopFuture<[PublicBuilder]> in
-                return req.future(self.publicBuilders(for: resultArray, request: req))
+                return req.future(BuilderController.publicBuilders(for: resultArray, request: req))
             })
     }
     
@@ -32,7 +32,7 @@ final class BuilderController {
             .alsoDecode(DBListing.self)
             .all()
             .then({ (resultArray) -> EventLoopFuture<[PublicBuilder]> in
-                return req.future(self.publicBuilders(for: resultArray, request: req))
+                return req.future(BuilderController.publicBuilders(for: resultArray, request: req))
         })
     }
     
@@ -47,25 +47,30 @@ final class BuilderController {
             .alsoDecode(DBListing.self)
             .all()
             .then({ (resultArray) -> EventLoopFuture<PublicBuilder?> in
-                return req.future(self.publicBuilders(for: resultArray, request: req).first)
+                return req.future(BuilderController.publicBuilders(for: resultArray, request: req).first)
             }).unwrap(or: NotFound())
     }
     
-    func listings(_ req: Request) throws -> Future<[DBListing]> {
+    func listings(_ req: Request) throws -> Future<[PublicListing]> {
         guard let id = try? req.parameters.next(Int.self) else {
             return req.future(error: NotFound())
         }
         return DBListing.query(on: req)
+            .join(\DBBuilder.id, to: \DBListing.builderID)
             .filter(\.active > 0)
             .filter(\.builderID == id)
+            .alsoDecode(DBBuilder.self)
             .all()
+            .then({ (resultArray) -> EventLoopFuture<[PublicListing]> in
+                return req.future(ListingController.publicListings(from: resultArray, request: req))
+            })
     }
     
 
     
     
     // MARK: - Transformation
-    private func publicBuilders(for result: [(DBBuilder, DBListing)], request: Request) -> [PublicBuilder] {
+    static func publicBuilders(for result: [(DBBuilder, DBListing)], request: Request) -> [PublicBuilder] {
         let builders: Set<DBBuilder> = Set(result.map({$0.0}))
         var listings: [DBListing] = result.map({$0.1})
         var publicBuilders: [PublicBuilder] = []

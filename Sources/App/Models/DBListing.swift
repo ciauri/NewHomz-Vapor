@@ -14,6 +14,7 @@ final class DBListing: MySQLModel {
     var id: Int?
     var builderID: Int
     var listing: String
+    var propType: String
     var active: Int
     var city: String
     var county: String
@@ -45,7 +46,7 @@ final class DBListing: MySQLModel {
     var status: String
     var schoolDistrictName: String
     
-    init(id: Int? = nil, listing: String, builderID: Int, active: Int, city: String, county: String, state: String, zip: Int, description: String, email: String, phone: String, priceTxt: String, priceLow: Int, priceHigh: Int, sqftLow: Int, sqftHigh: Int, bedLow: Int, bedHigh: Int, bathLow: Float, bathHigh: Float, hoa: Int, tax: Int, payment: Int, lot: Int, lat: Double, lng: Double, vid: String, photo: String, photo2: String, website: String, masterplanId: Int, status: String, schoolDistrictName: String) {
+    init(id: Int? = nil, listing: String, builderID: Int, active: Int, city: String, county: String, state: String, zip: Int, description: String, email: String, phone: String, priceTxt: String, priceLow: Int, priceHigh: Int, sqftLow: Int, sqftHigh: Int, bedLow: Int, bedHigh: Int, bathLow: Float, bathHigh: Float, hoa: Int, tax: Int, payment: Int, lot: Int, lat: Double, lng: Double, vid: String, photo: String, photo2: String, website: String, masterplanId: Int, status: String, schoolDistrictName: String, propType: String) {
         self.id = id
         self.builderID = builderID
         self.listing = listing
@@ -79,12 +80,21 @@ final class DBListing: MySQLModel {
         self.masterplanId=masterplanId
         self.status=status
         self.schoolDistrictName=schoolDistrictName
+        self.propType = propType
     }
 }
 
 extension DBListing {
     var builder: Parent<DBListing, DBBuilder> {
         return parent(\.builderID)
+    }
+    
+    var gallery: Children<DBListing, DBGalleryImage> {
+        return children(\.cID)
+    }
+    
+    var floorplans: Children<DBListing, DBFloorplanImage> {
+        return children(\.cID)
     }
 }
 
