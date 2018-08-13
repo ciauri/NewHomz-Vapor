@@ -15,6 +15,7 @@ struct PublicListing: Content {
     let squareFeetRange: IntRange
     let bedRange: IntRange
     let bathRange: FloatRange
+    let photo: String?
     let location: Location
     let website: String?
     let phoneNumber: String?
@@ -69,6 +70,7 @@ extension DBListing {
                              squareFeetRange: IntRange(min: sqftLow, max: sqftHigh),
                              bedRange: IntRange(min: bedLow, max: bedHigh),
                              bathRange: FloatRange(min: bathLow, max: bathHigh),
+                             photo: photo,
                              location: Location(coordinate: Coordinate(latitude: lat, longitude: lng),
                                                 city: city,
                                                 state: state,
