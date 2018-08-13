@@ -21,8 +21,10 @@ final class DBBuilder: MySQLModel {
     var website: String?
     var status: String
     var ads_enabled: Bool
+    var feedID: String?
+    var sourceID: String?
 
-    init(id: Int? = nil, builder: String, phone: String, fax: String, email: String, paid: Bool, photo: String?, website: String?, status: String, ads_enabled: Bool) {
+    init(id: Int? = nil, builder: String, phone: String, fax: String, email: String, paid: Bool, photo: String?, website: String?, status: String, ads_enabled: Bool, feedID: String, sourceID: String) {
         self.id = id
         self.builder = builder
         self.phone = phone
@@ -33,6 +35,30 @@ final class DBBuilder: MySQLModel {
         self.website = website
         self.status = status
         self.ads_enabled = ads_enabled
+        self.feedID = feedID
+        self.sourceID = sourceID
+    }
+}
+
+extension BDXBuilder {
+    var toDbBuilder: DBBuilder {
+        return DBBuilder(builder: name, phone: "", fax: "", email: defaultLeadsEmail ?? "", paid: false, photo: logoURL?.absoluteString, website: website?.absoluteString, status: "ACTIVE", ads_enabled: true, feedID: "newhomefeed", sourceID: id)
+    }
+}
+
+extension DBBuilder {
+    func hasUpdates(from feedBuilder: BDXBuilder) -> Bool {
+        return builder != feedBuilder.name ||
+            email != feedBuilder.defaultLeadsEmail ?? "" ||
+            photo != feedBuilder.logoURL?.absoluteString ||
+            website != feedBuilder.website?.absoluteString
+    }
+    
+    func update(with feedBuilder: BDXBuilder) {
+        builder = feedBuilder.name
+        email = feedBuilder.defaultLeadsEmail ?? ""
+        photo = feedBuilder.logoURL?.absoluteString
+        website = feedBuilder.website?.absoluteString
     }
 }
 
@@ -40,6 +66,12 @@ final class DBBuilder: MySQLModel {
 extension DBBuilder {
     var listings: Children<DBBuilder, DBListing> {
         return children(\.builderID)
+    }
+}
+
+extension DBBuilder {
+    var feedHash: Int {
+        return "\(sourceID ?? "")\(builder)".hashValue
     }
 }
 

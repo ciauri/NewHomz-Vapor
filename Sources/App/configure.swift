@@ -32,7 +32,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
                                      password: Environment.get("NHZ_DB_PASSWORD")!,
                                      database: Environment.get("NHZ_DB_SCHEMA")!,
                                      capabilities: MySQLCapabilities.default,
-                                     characterSet: MySQLCharacterSet.latin1_swedish_ci,
+                                     characterSet: MySQLCharacterSet.utf8_general_ci,
                                      transport: MySQLTransportConfig.unverifiedTLS)
     
     let mysql = MySQLDatabase(config: config)
