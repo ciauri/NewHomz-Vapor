@@ -38,15 +38,6 @@ class BDXSync: Worker {
                     promise.succeed(result: parsedBuilders)
                     return promise.futureResult
                 }).then({_ -> EventLoopFuture<Void> in
-                    let builderCount = builderData.count
-                    let builders: [BDXBuilder] = builderData.compactMap{BDXBuilder(withIndexer: $0)}
-                    
-                    let listingCount: Int = builderData.map({$0["Subdivision"].all.count}).reduce(0, +)
-                    let listingsParsed: Int = builders.map({$0.subdivisions.count}).reduce(0, +)
-                    
-                    print("Builder success: \(formatter.string(from: (Float(builders.count)/Float(builderCount)) as NSNumber) ?? "wut")")
-                    print("Subdivision success: \(formatter.string(from: (Float(listingsParsed)/Float(listingCount)) as NSNumber) ?? "wut")")
-                    
                     let promise = self.next().newPromise(Void.self)
                     promise.succeed()
                     return promise.futureResult
