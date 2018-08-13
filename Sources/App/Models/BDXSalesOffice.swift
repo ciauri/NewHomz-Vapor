@@ -78,6 +78,6 @@ extension BDXPhone {
     }
     
     var phoneString: String {
-        return prefix+areaCode+suffix+"\(phoneExtension != nil ? "ext "+phoneExtension! : "")"
+        return prefix+areaCode+suffix+"\((phoneExtension?.count ?? 0) > 0 ? "ext "+phoneExtension! : "")"
     }
 }
