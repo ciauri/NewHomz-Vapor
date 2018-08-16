@@ -12,13 +12,18 @@ import Vapor
 
 class BDXSync: Worker {
     let app: Application
+    let logger: Logger?
     
     init(application: Application) {
         app = application
+        logger = try? application.make(Logger.self)
     }
  
     func sync() {
+        let logger = self.logger
+        logger?.info("Scheduling sync task...")
         app.eventLoop.scheduleRepeatedTask(initialDelay: TimeAmount.seconds(0), delay: TimeAmount.hours(24)) { (task) -> EventLoopFuture<Void> in
+            logger?.info("Starting BDX sync")
             let formatter = NumberFormatter()
             formatter.numberStyle = .percent
             formatter.maximumFractionDigits = 2
@@ -27,11 +32,13 @@ class BDXSync: Worker {
             var dbConnection: DatabaseConnectable! = nil
             return self.fetchFeed()
                 .then({ (data) -> EventLoopFuture<XMLIndexer> in
+                    logger?.info("Serializing feed to XML")
                     let promise = self.next().newPromise(XMLIndexer.self)
                     let xml = SWXMLHash.parse(data)
                     promise.succeed(result: xml)
                     return promise.futureResult
                 }).then({ (xml) -> EventLoopFuture<[BDXBuilder]> in
+                    logger?.info("Parsing feed into objects")
                     let promise = self.next().newPromise([BDXBuilder].self)
                     builderData = xml["Builders"]["Corporation"]["Builder"].all
                     parsedBuilders = builderData.compactMap{BDXBuilder(withIndexer: $0)}
@@ -42,7 +49,9 @@ class BDXSync: Worker {
                     promise.succeed()
                     return promise.futureResult
                 }).then({ (_) -> EventLoopFuture<[DBBuilder]> in
+                    logger?.info("Getting db connection")
                     return self.app.newConnection(to: DBBuilder.defaultDatabase!).then({ (connection) -> EventLoopFuture<[DBBuilder]> in
+                        logger?.info("Querying all builders")
                         dbConnection = connection
                         return DBBuilder.query(on: connection).all()
                     })
@@ -60,12 +69,12 @@ class BDXSync: Worker {
     }
     
     private func insertNewBuilders(newBuilders: [BDXBuilder], dbConnection: DatabaseConnectable) -> EventLoopFuture<Void> {
-        print("Inserting \(newBuilders.count) new builders")
+        logger?.info("Inserting \(newBuilders.count) new builders")
         let futures: [EventLoopFuture<Void>] = newBuilders.map { (bdxBuilder) -> EventLoopFuture<Void> in
             return bdxBuilder.toDbBuilder.create(on: dbConnection).map({ (dbBuilder) -> ((BDXBuilder, DBBuilder)) in
                 return (bdxBuilder,dbBuilder)
             }).then({ (result) -> EventLoopFuture<Void> in
-                print("Inserting \(result.0.subdivisions.count) subs for \(result.0.name)")
+                self.logger?.info("Inserting \(result.0.subdivisions.count) subs for \(result.0.name)")
                 let futures: [EventLoopFuture<Void>] = result.0.subdivisions.map({ subdivision -> EventLoopFuture<Void> in
                     return self.insertNewListing(with: subdivision, builder: result.1, dbConnection: dbConnection)
                 })
@@ -78,7 +87,7 @@ class BDXSync: Worker {
     private func insertNewListing(with sub: BDXSubdivision, builder: DBBuilder, dbConnection: DatabaseConnectable) -> EventLoopFuture<Void> {
         return sub.toDbListing(with: builder.id!).create(on: dbConnection).then({ (listing) -> EventLoopFuture<Void> in
             if let images = sub.images {
-                print("Inserting \(images.count) images for \(sub.name)")
+                self.logger?.info("Inserting \(images.count) images for \(sub.name)")
                 let futures = images.map({self.insertNewImage(with: $0, listing: listing, dbConnection: dbConnection)})
                 return EventLoopFuture<Void>.andAll(futures, eventLoop: self.future().eventLoop)
             } else {
@@ -94,7 +103,7 @@ class BDXSync: Worker {
                               showOrder: image.position)
             .create(on: dbConnection)
             .catch({ (error) in
-                print(error.localizedDescription)
+                self.logger?.error(error.localizedDescription)
             }).then({ (image) -> EventLoopFuture<Void> in
                 return self.future()
             })
@@ -103,7 +112,7 @@ class BDXSync: Worker {
     
     private func updateBuilders(toUpdate builderMap: [Int:DBBuilder], with feedBuilders: [BDXBuilder], dbConnection: DatabaseConnectable) -> EventLoopFuture<Void> {
         let toUpdate = feedBuilders.filter({ builderMap[$0.feedHash] != nil })
-        print("Updating \(toUpdate.count) builders")
+        logger?.info("Updating \(toUpdate.count) builders")
         return EventLoopFuture<Void>.andAll(toUpdate.compactMap { (builder) -> EventLoopFuture<Void> in
             if let dbBuilder = builderMap[builder.feedHash] {
                 var future: EventLoopFuture<[DBListing]>!
@@ -128,22 +137,24 @@ class BDXSync: Worker {
         let toDelete = listings.filter({ bdxListingMap[$0.feedHash] == nil })
         let toUpdate = listings.filter({ bdxListingMap[$0.feedHash] != nil })
         let toAdd = feedListings.filter({ dbListingMap[$0.feedHash] == nil })
-        print("Updating \(toUpdate.count) listings for \(builder.builder)")
+        self.logger?.info("Updating \(toUpdate.count) listings for \(builder.builder)")
         return EventLoopFuture<Void>.andAll(toUpdate.compactMap({ (listing) -> EventLoopFuture<Void> in
             let bdxListing = bdxListingMap[listing.feedHash]!
             if listing.hasUpdates(from: bdxListing) {
+                self.logger?.verbose("Updating listing with changes")
                 listing.update(from: bdxListing)
                 return listing.update(on: dbConnection).map({_ in})
             } else {
+                self.logger?.verbose("Listing has no changes")
                 return future()
             }
         }), eventLoop: next())
             .then({ (_) -> EventLoopFuture<Void> in
-            print("Deleting \(toDelete.count) listings for \(builder.builder)")
+            self.logger?.info("Deleting \(toDelete.count) listings for \(builder.builder)")
             return EventLoopFuture<Void>.andAll(toDelete.compactMap({$0.delete(on: dbConnection)}),
                                          eventLoop: self.eventLoop)
             }).then({ (_) -> EventLoopFuture<Void> in
-                print("Adding \(toAdd.count) listings for \(builder.builder)")
+                self.logger?.info("Adding \(toAdd.count) listings for \(builder.builder)")
                 return EventLoopFuture<Void>.andAll(toAdd.compactMap({self.insertNewListing(with: $0, builder: builder, dbConnection: dbConnection)}),
                                                     eventLoop: self.eventLoop)
             })
@@ -152,8 +163,10 @@ class BDXSync: Worker {
     
     
     private func fetchFeed() -> Future<Data>  {
+        logger?.info("Fetching feed")
         let promise = next().newPromise(Data.self)
         guard let url = Environment.get("NHZ_FEED_URL")?.toURL else {
+            logger?.warning("Feed URL not found")
             promise.fail(error: NotFound())
             return promise.futureResult
         }
@@ -162,6 +175,7 @@ class BDXSync: Worker {
             let request = HTTPRequest(method: .GET, url: url)
             return client.send(request)
             }.then { (response) -> EventLoopFuture<Void> in
+                self.logger?.info("Feed fetched!")
                 promise.succeed(result: response.body.data!)
                 return self.future()
         }
