@@ -142,7 +142,7 @@ extension DBListing {
         let differentBathHigh = bathHigh != Float(feedSub.plans?.reduce(feedSub.plans?.first?.bathrooms ?? 0, {max($0, $1.bathrooms)}) ?? 0)
         let differentLat = lat != addressToUse.geocode?.latitude.nhzRounded ?? 0
         let differentLng = lng != addressToUse.geocode?.longitude.nhzRounded ?? 0
-        let differentPhoto = photo != feedSub.images?.first?.url.absoluteString ?? ""
+        let differentPhoto = photo != feedSub.images?.first(where: {$0.isPreferred})?.url.absoluteString ?? ""
         let differentWebsite = website != feedSub.plans?.first?.website ?? ""
         let differentStatus = status != feedSub.status.rawValue
         let differentSchoolDistrictName = schoolDistrictName != feedSub.schools?.first?.districtName ?? ""
@@ -163,14 +163,15 @@ extension DBListing {
         description = feedSub.description ?? ""
         email = feedSub.email ?? ""
         phone = feedSub.salesOffice.phone?.phoneString ?? ""
+        photo = feedSub.images?.first(where: {$0.isPreferred})?.url.absoluteString ?? ""
         priceLow = Int(feedSub.priceLow ?? 0)
         priceHigh = Int(feedSub.priceHigh ?? 0)
         sqftLow = feedSub.squareFeetLow ?? 0
         sqftHigh = feedSub.squareFeetHigh ?? 0
-        bedLow = feedSub.plans?.first?.bedrooms ?? 0
-        bedHigh = feedSub.plans?.first?.bedrooms ?? 0
-        bathLow = Float(feedSub.plans?.first?.bathrooms ?? 0)
-        bathHigh = Float(feedSub.plans?.first?.bathrooms ?? 0)
+        bedLow = feedSub.plans?.reduce(feedSub.plans?.first?.bedrooms ?? 0, {min($0, $1.bedrooms)}) ?? 0
+        bedHigh = feedSub.plans?.reduce(feedSub.plans?.first?.bedrooms ?? 0, {max($0, $1.bedrooms)}) ?? 0
+        bathLow = Float(feedSub.plans?.reduce(feedSub.plans?.first?.bathrooms ?? 0, {min($0, $1.bathrooms)}) ?? 0)
+        bathHigh = Float(feedSub.plans?.reduce(feedSub.plans?.first?.bathrooms ?? 0, {max($0, $1.bathrooms)}) ?? 0)
     }
 }
 
