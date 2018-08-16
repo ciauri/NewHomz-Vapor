@@ -136,10 +136,10 @@ extension DBListing {
         let differentPriceHigh = priceHigh != Int(feedSub.priceHigh ?? 0)
         let differentSizeLow = sqftLow != feedSub.squareFeetLow ?? 0
         let differentSizeHigh = sqftHigh != feedSub.squareFeetHigh ?? 0
-        let differentBedLow = bedLow != feedSub.plans?.first?.bedrooms ?? 0
-        let differentBedHigh = bedHigh != feedSub.plans?.first?.bedrooms ?? 0
-        let differentBathLow = bathLow != Float(feedSub.plans?.first?.bathrooms ?? 0)
-        let differentBathHigh = bathHigh != Float(feedSub.plans?.first?.bathrooms ?? 0)
+        let differentBedLow = bedLow != feedSub.plans?.reduce(feedSub.plans?.first?.bedrooms ?? 0, {min($0, $1.bedrooms)}) ?? 0
+        let differentBedHigh = bedHigh != feedSub.plans?.reduce(feedSub.plans?.first?.bedrooms ?? 0, {max($0, $1.bedrooms)}) ?? 0
+        let differentBathLow = bathLow != Float(feedSub.plans?.reduce(feedSub.plans?.first?.bathrooms ?? 0, {min($0, $1.bathrooms)}) ?? 0)
+        let differentBathHigh = bathHigh != Float(feedSub.plans?.reduce(feedSub.plans?.first?.bathrooms ?? 0, {max($0, $1.bathrooms)}) ?? 0)
         let differentLat = lat != addressToUse.geocode?.latitude.nhzRounded ?? 0
         let differentLng = lng != addressToUse.geocode?.longitude.nhzRounded ?? 0
         let differentPhoto = photo != feedSub.images?.first?.url.absoluteString ?? ""
