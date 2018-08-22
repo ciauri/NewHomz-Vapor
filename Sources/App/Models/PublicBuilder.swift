@@ -33,7 +33,15 @@ extension PublicBuilder {
 
 extension DBBuilder {
     var publicBuilder: PublicBuilder {
-        return PublicBuilder(id: id, name: builder, logo: photo, paid: paid, adsEnabled: ads_enabled, website: website, phoneNumber: phone, listingCount: nil, links: nil)
+        return PublicBuilder(id: id,
+                             name: builder,
+                             logo: photo.hasPrefix("http") ? photo : nil,
+                             paid: paid,
+                             adsEnabled: ads_enabled,
+                             website: website.hasPrefix("http") ? website : nil,
+                             phoneNumber: phone,
+                             listingCount: nil,
+                             links: nil)
     }
 }
 

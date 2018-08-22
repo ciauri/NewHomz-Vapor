@@ -17,8 +17,8 @@ final class DBBuilder: MySQLModel {
     var fax: String
     var email: String
     var paid: Bool
-    var photo: String?
-    var website: String?
+    var photo: String
+    var website: String
     var status: String
     var ads_enabled: Bool
     var feedID: String?
@@ -31,8 +31,8 @@ final class DBBuilder: MySQLModel {
         self.fax = fax
         self.email = email
         self.paid = paid
-        self.photo = photo
-        self.website = website
+        self.photo = photo ?? ""
+        self.website = website ?? ""
         self.status = status
         self.ads_enabled = ads_enabled
         self.feedID = feedID
@@ -57,8 +57,8 @@ extension DBBuilder {
     func update(with feedBuilder: BDXBuilder) {
         builder = feedBuilder.name
         email = feedBuilder.defaultLeadsEmail ?? ""
-        photo = feedBuilder.logoURL?.absoluteString
-        website = feedBuilder.website?.absoluteString
+        photo = feedBuilder.logoURL?.absoluteString ?? ""
+        website = feedBuilder.website?.absoluteString ?? ""
     }
 }
 
