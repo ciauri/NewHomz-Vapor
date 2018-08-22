@@ -71,13 +71,15 @@ final class ListingController {
             }).unwrap(or: NotFound())
     }
     
-    func gallery(_ req: Request) throws -> Future<[DBGalleryImage]> {
+    func gallery(_ req: Request) throws -> Future<[PublicGalleryImage]> {
         guard let id = try? req.parameters.next(Int.self) else {
             return req.future(error: NotFound())
         }
         return DBGalleryImage.query(on: req)
             .filter(\.cID == id)
-            .all()
+            .all().then({ (resultArray) -> EventLoopFuture<[PublicGalleryImage]?> in
+                return req.future(ListingController.publicGallery(from: resultArray))
+            }).unwrap(or: NotFound())
     }
     
     func floorplans(_ req: Request) throws -> Future<[DBFloorplanImage]> {
@@ -97,5 +99,9 @@ final class ListingController {
             listing.updateLinks(with: request)
             return listing
         })
+    }
+    
+    static func publicGallery(from results: [DBGalleryImage]) -> [PublicGalleryImage] {
+        return results.map({ $0.toPublicImage })
     }
 }

@@ -11,6 +11,7 @@ import Vapor
 struct PublicListing: Content {
     let id: Int?
     let name: String
+    let status: Int
     let description: String
     let priceText: String
     let priceRange: IntRange
@@ -26,8 +27,8 @@ struct PublicListing: Content {
     let youtubeID: String
     let masterPlanID: String?
     
-    var builder: PublicBuilder?
-    var links: [String:String]?
+    var builder: PublicBuilder!
+    var links: [String:String]!
 }
 
 struct Location: Content {
@@ -69,6 +70,7 @@ extension DBListing {
     var publicListing: PublicListing {
         return PublicListing(id: id,
                              name: listing,
+                             status: active,
                              description: description,
                              priceText: priceTxt,
                              priceRange: IntRange(min: priceLow, max: priceHigh),
