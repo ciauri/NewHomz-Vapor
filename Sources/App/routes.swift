@@ -10,8 +10,11 @@ public func routes(_ router: Router) throws {
     
     router.get("builders", use: builderController.index)
     router.get("builders", "featured", use: builderController.featured)
+    router.get("builders", "count", use: builderController.count)
     router.get("builder", Int.parameter, use: builderController.withId)
     router.get("builder", Int.parameter, "listings", use: builderController.listings)
+    router.get("builder", Int.parameter, "listings", "count", use: builderController.listingCount)
+
 
 
     
@@ -20,6 +23,7 @@ public func routes(_ router: Router) throws {
     router.get("listings", use: listingController.index)
     router.get("listings", "featured", use: listingController.featured)
     router.get("listings", "inRegion", use: listingController.map)
+    router.get("listings", "count", use: listingController.count)
     router.get("listing", Int.parameter, use: listingController.withId)
     router.get("listing", Int.parameter, "gallery", use: listingController.gallery)
     router.get("listing", Int.parameter, "floorplans", use: listingController.floorplans)

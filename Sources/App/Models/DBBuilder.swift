@@ -21,10 +21,11 @@ final class DBBuilder: MySQLModel {
     var website: String
     var status: String
     var ads_enabled: Bool
+    var activeListingCount: Int
     var feedID: String?
     var sourceID: String?
 
-    init(id: Int? = nil, builder: String, phone: String, fax: String, email: String, paid: Bool, photo: String?, website: String?, status: String, ads_enabled: Bool, feedID: String, sourceID: String) {
+    init(id: Int? = nil, builder: String, phone: String, fax: String, email: String, paid: Bool, photo: String?, website: String?, status: String, ads_enabled: Bool, feedID: String, sourceID: String, activeListingCount: Int) {
         self.id = id
         self.builder = builder
         self.phone = phone
@@ -37,12 +38,13 @@ final class DBBuilder: MySQLModel {
         self.ads_enabled = ads_enabled
         self.feedID = feedID
         self.sourceID = sourceID
+        self.activeListingCount = activeListingCount
     }
 }
 
 extension BDXBuilder {
     var toDbBuilder: DBBuilder {
-        return DBBuilder(builder: name, phone: "", fax: "", email: defaultLeadsEmail ?? "", paid: false, photo: logoURL?.absoluteString, website: website?.absoluteString, status: "ACTIVE", ads_enabled: true, feedID: "newhomefeed", sourceID: id)
+        return DBBuilder(builder: name, phone: "", fax: "", email: defaultLeadsEmail ?? "", paid: false, photo: logoURL?.absoluteString, website: website?.absoluteString, status: "ACTIVE", ads_enabled: true, feedID: "newhomefeed", sourceID: id, activeListingCount: 0)
     }
 }
 

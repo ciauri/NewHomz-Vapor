@@ -14,25 +14,39 @@ final class BuilderController {
     // MARK: - Handlers
     
     func index(_ req: Request) throws -> Future<[PublicBuilder]> {
+        if let offset = try? req.query.get(Int.self, at: "offset") {
+            return try indexWithOffset(req, offset: offset)
+        } else {
+            return DBBuilder.query(on: req)
+                .filter(\DBBuilder.activeListingCount > 0)
+                .all()
+                .then({ (builders) -> EventLoopFuture<[PublicBuilder]> in
+                    let publicBuilders = builders.map({$0.publicBuilder(with: req)})
+                    return req.future(publicBuilders)
+                })
+        }
+    }
+    
+    func indexWithOffset(_ req: Request, offset: Int) throws -> Future<[PublicBuilder]> {
+        guard offset > 0 else {
+            return req.future([])
+        }
         return DBBuilder.query(on: req)
-            .join(\DBListing.builderID, to: \DBBuilder.id)
-            .filter(\DBListing.active > 0)
-            .alsoDecode(DBListing.self)
+            .filter(\DBBuilder.activeListingCount > 0)
+            .range(lower: offset, upper: offset + 100)
             .all()
-            .then({ (resultArray) -> EventLoopFuture<[PublicBuilder]> in
-                return req.future(BuilderController.publicBuilders(for: resultArray, request: req))
+            .then({ (builders) -> EventLoopFuture<[PublicBuilder]> in
+                return req.future(builders.map({$0.publicBuilder(with: req)}))
             })
     }
     
     func featured(_ req: Request) throws -> Future<[PublicBuilder]> {
         return DBBuilder.query(on: req)
-            .join(\DBListing.builderID, to: \DBBuilder.id)
             .filter(\DBBuilder.paid == true)
-            .filter(\DBListing.active > 0)
-            .alsoDecode(DBListing.self)
+            .filter(\DBBuilder.activeListingCount > 0)
             .all()
-            .then({ (resultArray) -> EventLoopFuture<[PublicBuilder]> in
-                return req.future(BuilderController.publicBuilders(for: resultArray, request: req))
+            .then({ (builders) -> EventLoopFuture<[PublicBuilder]> in
+                return req.future(builders.map({$0.publicBuilder(with: req)}))
         })
     }
     
@@ -40,17 +54,29 @@ final class BuilderController {
         guard let id = try? req.parameters.next(Int.self) else {
             return req.future(error: NotFound())
         }
-        return DBBuilder.query(on: req)
-            .join(\DBListing.builderID, to: \DBBuilder.id)
-            .filter(\DBBuilder.id == id)
-            .filter(\DBListing.active > 0)
-            .alsoDecode(DBListing.self)
-            .all()
-            .then({ (resultArray) -> EventLoopFuture<PublicBuilder?> in
-                return req.future(BuilderController.publicBuilders(for: resultArray, request: req).first)
-            }).unwrap(or: NotFound())
+        return DBBuilder.find(id, on: req)
+            .unwrap(or: NotFound())
+            .then({ (builder) -> EventLoopFuture<PublicBuilder> in
+                return req.future(builder.publicBuilder(with: req))
+            })
     }
     
+    func count(_ req: Request) throws -> Future<Int> {
+        return DBBuilder.query(on: req)
+            .filter(\.activeListingCount > 0)
+            .count()
+    }
+    
+    func listingCount(_ req: Request) throws -> Future<Int> {
+        guard let id = try? req.parameters.next(Int.self) else {
+            return req.future(error: NotFound())
+        }
+        return DBListing.query(on: req)
+            .filter(\.builderID == id)
+            .filter(\.active > 0)
+            .count()
+    }
+
     func listings(_ req: Request) throws -> Future<[PublicListing]> {
         guard let id = try? req.parameters.next(Int.self) else {
             return req.future(error: NotFound())
@@ -64,27 +90,6 @@ final class BuilderController {
             .then({ (resultArray) -> EventLoopFuture<[PublicListing]> in
                 return req.future(ListingController.publicListings(from: resultArray, request: req))
             })
-    }
-    
-
-    
-    
-    // MARK: - Transformation
-    static func publicBuilders(for result: [(DBBuilder, DBListing)], request: Request) -> [PublicBuilder] {
-        let builders: Set<DBBuilder> = Set(result.map({$0.0}))
-        var listings: [DBListing] = result.map({$0.1})
-        var publicBuilders: [PublicBuilder] = []
-        for builder in builders {
-            let initialCount = listings.count
-            listings = listings.filter({$0.builderID != builder.id!})
-            let finalCount = listings.count
-            let listingCount = initialCount - finalCount
-            var publicBuilder = builder.publicBuilder
-            publicBuilder.listingCount = listingCount
-            publicBuilder.updateLinks(with: request)
-            publicBuilders.append(publicBuilder)
-        }
-        return publicBuilders
     }
 }
 

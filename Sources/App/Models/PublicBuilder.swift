@@ -22,26 +22,31 @@ struct PublicBuilder: Content {
 }
 
 extension PublicBuilder {
-    mutating func updateLinks(with request: Request) {
-        links = [
-            "href":request.baseURL.appendingPathComponent("builder").appendingPathComponent("\(id!)").absoluteString,
-            "listings":request.baseURL.appendingPathComponent("builder").appendingPathComponent("\(id!)").appendingPathComponent("listings").absoluteString,
+    static func linksWithID(id: Int, request: Request) -> [String:String]? {
+        return [
+            "href":request.baseURL.appendingPathComponent("builder").appendingPathComponent("\(id)").absoluteString,
+            "listings":request.baseURL.appendingPathComponent("builder").appendingPathComponent("\(id)").appendingPathComponent("listings").absoluteString,
+            "listingCount":request.baseURL.appendingPathComponent("builder").appendingPathComponent("\(id)").appendingPathComponent("listings").appendingPathComponent("count").absoluteString,
         ]
+    }
+    mutating func updateLinks(with request: Request) {
+        links = PublicBuilder.linksWithID(id: id!, request: request)
     }
 }
 
 
 extension DBBuilder {
-    var publicBuilder: PublicBuilder {
-        return PublicBuilder(id: id,
+    func publicBuilder(with request: Request) -> PublicBuilder {
+        let b = PublicBuilder(id: id,
                              name: builder,
                              logo: photo.hasPrefix("http") ? photo : nil,
                              paid: paid,
                              adsEnabled: ads_enabled,
                              website: website.hasPrefix("http") ? website : nil,
                              phoneNumber: phone,
-                             listingCount: nil,
-                             links: nil)
+                             listingCount: activeListingCount,
+                             links: PublicBuilder.linksWithID(id: id!, request: request))
+        return b
     }
 }
 

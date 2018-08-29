@@ -14,9 +14,28 @@ final class ListingController {
     // MARK: - Handlers
     
     func index(_ req: Request) throws -> Future<[PublicListing]> {
+        if let offset = try? req.query.get(Int.self, at: "offset") {
+            return try indexWithOffset(req, offset: offset)
+        } else {
+            return DBListing.query(on: req)
+                .join(\DBBuilder.id, to: \DBListing.builderID)
+                .filter(\.active > 0)
+                .alsoDecode(DBBuilder.self)
+                .all()
+                .then({ (resultArray) -> EventLoopFuture<[PublicListing]> in
+                    return req.future(ListingController.publicListings(from: resultArray, request: req))
+                })
+        }
+    }
+    
+    func indexWithOffset(_ req: Request, offset: Int) throws -> Future<[PublicListing]> {
+        guard offset > 0 else {
+            return req.future([])
+        }
         return DBListing.query(on: req)
             .join(\DBBuilder.id, to: \DBListing.builderID)
             .filter(\.active > 0)
+            .range(lower: offset, upper: offset + 100)
             .alsoDecode(DBBuilder.self)
             .all()
             .then({ (resultArray) -> EventLoopFuture<[PublicListing]> in
@@ -71,6 +90,12 @@ final class ListingController {
             }).unwrap(or: NotFound())
     }
     
+    func count(_ req: Request) throws -> Future<Int> {
+        return DBListing.query(on: req)
+            .filter(\.active > 0)
+            .count()
+    }
+    
     func gallery(_ req: Request) throws -> Future<[PublicGalleryImage]> {
         guard let id = try? req.parameters.next(Int.self) else {
             return req.future(error: NotFound())
@@ -95,7 +120,7 @@ final class ListingController {
     static func publicListings(from results: [(DBListing, DBBuilder)], request: Request) -> [PublicListing] {
         return results.map({ (result) -> PublicListing in
             var listing = result.0.publicListing
-            listing.builder = result.1.publicBuilder
+            listing.builder = result.1.publicBuilder(with: request)
             listing.updateLinks(with: request)
             return listing
         })

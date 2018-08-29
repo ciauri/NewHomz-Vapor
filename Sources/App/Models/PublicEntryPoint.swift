@@ -16,9 +16,11 @@ struct PublicEntryPoint: Content {
             "builders": req.baseURL.appendingPathComponent("builders").absoluteString,
             "builderById": req.baseURL.appendingPathComponent("builder").absoluteString,
             "featuredBuilders": req.baseURL.appendingPathComponent("builders").appendingPathComponent("featured").absoluteString,
+            "builderCount": req.baseURL.appendingPathComponent("builders").appendingPathComponent("count").absoluteString,
             "listings": req.baseURL.appendingPathComponent("listings").absoluteString,
             "listingById": req.baseURL.appendingPathComponent("listing").absoluteString,
             "featuredListings": req.baseURL.appendingPathComponent("listings").appendingPathComponent("featured").absoluteString,
+            "listingCount": req.baseURL.appendingPathComponent("listings").appendingPathComponent("count").absoluteString,
             "listingsInRegion": req.baseURL.appendingPathComponent("listings").appendingPathComponent("inRegion").absoluteString,
         ]
     }
