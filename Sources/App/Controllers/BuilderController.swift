@@ -95,6 +95,12 @@ final class BuilderController {
 
 extension Request {
     var baseURL: URL {
-        return URL(string: "https://\(http.headers.firstValue(name: .host)!)")!
+        let hostname = http.headers.firstValue(name: .host)!
+        var scheme = "https"
+        if let sslDisabled = Environment.get("NHZ_SSL_DISABLED") {
+            let sslDisabledString = NSString(string: sslDisabled)
+            scheme = sslDisabledString.boolValue ? "http" : "https"
+        }
+        return URL(string: "\(scheme)://\(hostname)")!
     }
 }
