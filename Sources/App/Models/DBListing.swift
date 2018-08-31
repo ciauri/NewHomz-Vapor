@@ -115,7 +115,7 @@ extension BDXSubdivision {
                          hoa: 0, tax: 0, payment: 0,
                          lot: 0,
                          lat: addressToUse.geocode?.latitude.nhzRounded ?? 0, lng: addressToUse.geocode?.longitude.nhzRounded ?? 0,
-                         vid: "", photo: (images?.first(where: {$0.isPreferred}) ?? images?.first(where: {$0.position == 0}))?.url.absoluteString ?? "", photo2: "",
+                         vid: "", photo: (images?.first(where: {$0.isPreferred}) ?? images?.first(where: {$0.position == 1}))?.url.absoluteString ?? "", photo2: "",
                          website: plans?.first?.website ?? "",
                          masterplanId: 0,
                          status: status.rawValue,
@@ -146,7 +146,7 @@ extension DBListing {
         let differentBathHigh = bathHigh != Float(feedSub.plans?.reduce(feedSub.plans?.first?.bathrooms ?? 0, {max($0, $1.bathrooms)}) ?? 0)
         let differentLat = lat != addressToUse.geocode?.latitude.nhzRounded ?? 0
         let differentLng = lng != addressToUse.geocode?.longitude.nhzRounded ?? 0
-        let differentPhoto = photo != feedSub.images?.first(where: {$0.isPreferred})?.url.absoluteString ?? ""
+        let differentPhoto = photo != feedSub.images?.first(where: {$0.isPreferred})?.url.absoluteString ?? feedSub.images?.first(where: {$0.position == 1})?.url.absoluteString ?? ""
         let differentWebsite = website != feedSub.plans?.first?.website ?? ""
         let differentStatus = status != feedSub.status.rawValue
         let differentSchoolDistrictName = schoolDistrictName != feedSub.schools?.first?.districtName ?? ""
@@ -167,7 +167,7 @@ extension DBListing {
         description = feedSub.description ?? ""
         email = feedSub.email ?? ""
         phone = feedSub.salesOffice.phone?.phoneString ?? ""
-        photo = feedSub.images?.first(where: {$0.isPreferred})?.url.absoluteString ?? ""
+        photo = feedSub.images?.first(where: {$0.isPreferred})?.url.absoluteString ?? feedSub.images?.first(where: {$0.position == 1})?.url.absoluteString ?? ""
         priceLow = Int(feedSub.priceLow ?? 0)
         priceHigh = Int(feedSub.priceHigh ?? 0)
         sqftLow = feedSub.squareFeetLow ?? 0
@@ -176,6 +176,10 @@ extension DBListing {
         bedHigh = feedSub.plans?.reduce(feedSub.plans?.first?.bedrooms ?? 0, {max($0, $1.bedrooms)}) ?? 0
         bathLow = Float(feedSub.plans?.reduce(feedSub.plans?.first?.bathrooms ?? 0, {min($0, $1.bathrooms)}) ?? 0)
         bathHigh = Float(feedSub.plans?.reduce(feedSub.plans?.first?.bathrooms ?? 0, {max($0, $1.bathrooms)}) ?? 0)
+        website = feedSub.plans?.first?.website ?? ""
+        status = feedSub.status.rawValue
+        schoolDistrictName = feedSub.schools?.first?.districtName ?? ""
+        propType = feedSub.plans?.first?.type.rawValue ?? ""
     }
 }
 
