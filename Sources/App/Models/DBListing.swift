@@ -14,7 +14,9 @@ final class DBListing: MySQLModel {
     var id: Int?
     var sourceID: String?
     var builderID: Int
+    var builder: String
     var listing: String
+    var community: String
     var propType: String
     var active: Int
     var city: String
@@ -50,6 +52,8 @@ final class DBListing: MySQLModel {
     init(id: Int? = nil, listing: String, builderID: Int, active: Int, city: String, county: String, state: String, zip: Int, description: String, email: String, phone: String, priceTxt: String, priceLow: Int, priceHigh: Int, sqftLow: Int, sqftHigh: Int, bedLow: Int, bedHigh: Int, bathLow: Float, bathHigh: Float, hoa: Int, tax: Int, payment: Int, lot: Int, lat: Double, lng: Double, vid: String, photo: String, photo2: String, website: String, masterplanId: Int, status: String, schoolDistrictName: String, propType: String, sourceID: String) {
         self.id = id
         self.builderID = builderID
+        builder = ""
+        community = listing
         self.listing = listing
         self.active = active
         self.city = city
@@ -111,7 +115,7 @@ extension BDXSubdivision {
                          hoa: 0, tax: 0, payment: 0,
                          lot: 0,
                          lat: addressToUse.geocode?.latitude.nhzRounded ?? 0, lng: addressToUse.geocode?.longitude.nhzRounded ?? 0,
-                         vid: "", photo: images?.first(where: {$0.isPreferred})?.url.absoluteString ?? "", photo2: "",
+                         vid: "", photo: (images?.first(where: {$0.isPreferred}) ?? images?.first(where: {$0.position == 0}))?.url.absoluteString ?? "", photo2: "",
                          website: plans?.first?.website ?? "",
                          masterplanId: 0,
                          status: status.rawValue,
@@ -176,7 +180,7 @@ extension DBListing {
 }
 
 extension DBListing {
-    var builder: Parent<DBListing, DBBuilder> {
+    var parentBuilder: Parent<DBListing, DBBuilder> {
         return parent(\.builderID)
     }
     

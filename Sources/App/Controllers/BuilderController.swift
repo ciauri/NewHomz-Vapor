@@ -51,7 +51,7 @@ final class BuilderController {
     }
     
     func withId(_ req: Request) throws -> Future<PublicBuilder> {
-        guard let id = try? req.parameters.next(Int.self) else {
+        guard let id = (try? req.parameters.next(Int.self)) ?? (try? req.query.get(Int.self, at: "id")) else {
             return req.future(error: NotFound())
         }
         return DBBuilder.find(id, on: req)

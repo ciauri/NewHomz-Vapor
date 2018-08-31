@@ -16,6 +16,7 @@ final class DBBuilder: MySQLModel {
     var phone: String
     var fax: String
     var email: String
+    var image: String
     var paid: Bool
     var photo: String
     var website: String
@@ -31,6 +32,7 @@ final class DBBuilder: MySQLModel {
         self.phone = phone
         self.fax = fax
         self.email = email
+        image = ""
         self.paid = paid
         self.photo = photo ?? ""
         self.website = website ?? ""
@@ -52,8 +54,8 @@ extension DBBuilder {
     func hasUpdates(from feedBuilder: BDXBuilder) -> Bool {
         return builder != feedBuilder.name ||
             email != feedBuilder.defaultLeadsEmail ?? "" ||
-            photo != feedBuilder.logoURL?.absoluteString ||
-            website != feedBuilder.website?.absoluteString
+            photo != feedBuilder.logoURL?.absoluteString ?? "" ||
+            website != feedBuilder.website?.absoluteString ?? ""
     }
     
     func update(with feedBuilder: BDXBuilder) {

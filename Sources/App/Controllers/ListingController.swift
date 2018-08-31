@@ -77,7 +77,7 @@ final class ListingController {
     }
     
     func withId(_ req: Request) throws -> Future<PublicListing> {
-        guard let id = try? req.parameters.next(Int.self) else {
+        guard let id = (try? req.parameters.next(Int.self)) ?? (try? req.query.get(Int.self, at: "id")) else {
             return req.future(error: NotFound())
         }
         return DBListing.query(on: req)
