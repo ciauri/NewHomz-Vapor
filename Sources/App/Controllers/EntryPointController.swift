@@ -8,7 +8,11 @@
 import Foundation
 import Vapor
 
-final class EntryPointController {
+final class EntryPointController: RouteCollection {
+    func boot(router: Router) throws {
+        router.grouped(CacheMiddleware(duration: 86400)).get("/", use: index)
+    }
+
     // MARK: - Handlers
     
     func index(_ req: Request) throws -> Future<PublicEntryPoint> {

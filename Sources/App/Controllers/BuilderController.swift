@@ -10,7 +10,19 @@ import Vapor
 import FluentMySQL
 
 
-final class BuilderController {
+final class BuilderController: RouteCollection {
+    
+    // Register Controller
+    func boot(router: Router) throws {
+        router.grouped(CacheMiddleware(duration: 86400)).get("builders", use: index)
+        router.get("builders", "featured", use: featured)
+        router.get("builders", "count", use: count)
+        router.get("builder", use: withId)
+        router.get("builder", Int.parameter, use: withId)
+        router.get("builder", Int.parameter, "listings", use: listings)
+        router.get("builder", Int.parameter, "listings", "count", use: listingCount)
+    }
+    
     // MARK: - Handlers
     
     func index(_ req: Request) throws -> Future<[PublicBuilder]> {

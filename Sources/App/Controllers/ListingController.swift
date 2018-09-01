@@ -10,9 +10,19 @@ import Vapor
 import FluentMySQL
 
 
-final class ListingController {
+final class ListingController: RouteCollection {
+    func boot(router: Router) throws {
+        router.grouped(CacheMiddleware(duration: 86400)).get("listings", use: index)
+        router.get("listings", "featured", use: featured)
+        router.get("listings", "inRegion", use: map)
+        router.get("listings", "count", use: count)
+        router.get("listing", use: withId)
+        router.get("listing", Int.parameter, use: withId)
+        router.get("listing", Int.parameter, "gallery", use: gallery)
+        router.get("listing", Int.parameter, "floorplans", use: floorplans)
+    }
+
     // MARK: - Handlers
-    
     func index(_ req: Request) throws -> Future<[PublicListing]> {
         if let offset = try? req.query.get(Int.self, at: "offset") {
             return try indexWithOffset(req, offset: offset)
