@@ -103,7 +103,7 @@ extension BDXSubdivision {
                          description: description ?? "",
                          email: email ?? "",
                          phone: salesOffice.phone?.phoneString ?? "",
-                         priceTxt: "From the",
+                         priceTxt: priceLow ?? 0 > 0 ? "From the" : "Coming Soon",
                          priceLow: Int(priceLow ?? 0),
                          priceHigh: Int(priceHigh ?? 0),
                          sqftLow: squareFeetLow ?? 0,

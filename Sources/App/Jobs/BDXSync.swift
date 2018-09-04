@@ -62,7 +62,7 @@ class BDXSync: Worker {
                     let buildersToAdd: [BDXBuilder] = parsedBuilders.filter({ buildersToUpdate[$0.feedHash] == nil})
                     return self.insertNewBuilders(newBuilders: buildersToAdd, dbConnection: dbConnection)
                         .map({buildersToUpdate})
-                }).map({ builders in
+                }).flatMap({ builders in
                     return self.updateBuilders(toUpdate: builders, with: parsedBuilders, dbConnection: dbConnection)
                 })
         }
@@ -174,7 +174,7 @@ class BDXSync: Worker {
         HTTPClient.connect(hostname: url.host!, on: self).then { (client) -> EventLoopFuture<HTTPResponse> in
             let request = HTTPRequest(method: .GET, url: url)
             return client.send(request)
-            }.then { (response) -> EventLoopFuture<Void> in
+            }.flatMap { (response) -> EventLoopFuture<Void> in
                 self.logger?.info("Feed fetched!")
                 promise.succeed(result: response.body.data!)
                 return self.future()
