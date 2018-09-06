@@ -71,6 +71,10 @@ extension DBBuilder {
     var listings: Children<DBBuilder, DBListing> {
         return children(\.builderID)
     }
+    
+    var masterPlans: Children<DBBuilder, DBMasterPlan> {
+        return children(\.builderId)
+    }
 }
 
 extension DBBuilder {

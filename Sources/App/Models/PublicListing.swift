@@ -28,6 +28,7 @@ struct PublicListing: Content {
     let masterPlanID: String?
     
     var builder: PublicBuilder!
+    var masterPlan: PublicMasterPlan?
     var links: [String:String]!
 }
 
@@ -90,7 +91,7 @@ extension DBListing {
                              lotSize: lot,
                              youtubeID: vid,
                              masterPlanID: masterplanId?.toString,
-                             builder: nil, links: nil)
+                             builder: nil, masterPlan: nil, links: nil)
     }
 }
 

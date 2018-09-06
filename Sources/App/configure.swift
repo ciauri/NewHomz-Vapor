@@ -40,6 +40,7 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     /// Register the configured SQLite database to the database config.
     var databases = DatabasesConfig()
     databases.add(database: mysql, as: .mysql)
+    databases.enableLogging(on: .mysql)
     services.register(databases)
     DBBuilder.defaultDatabase = DatabaseIdentifier(stringLiteral: Environment.get("NHZ_DB_SCHEMA")!)
 
@@ -49,6 +50,8 @@ public func configure(_ config: inout Config, _ env: inout Environment, _ servic
     migrations.add(model: DBListing.self, database: .mysql)
     migrations.add(model: DBGalleryImage.self, database: .mysql)
     migrations.add(model: DBFloorplanImage.self, database: .mysql)
+    migrations.add(model: DBMasterPlan.self, database: .mysql)
+
 
     services.register(migrations)
 

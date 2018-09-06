@@ -93,11 +93,9 @@ final class BuilderController: RouteCollection {
         guard let id = try? req.parameters.next(Int.self) else {
             return req.future(error: NotFound())
         }
-        return DBListing.query(on: req)
-            .join(\DBBuilder.id, to: \DBListing.builderID)
-            .filter(\.active > 0)
-            .filter(\.builderID == id)
-            .alsoDecode(DBBuilder.self)
+        return ListingController.listingQueryBuilder(with: req)
+            .filter(\DBListing.builderID == id)
+            .filter(\DBListing.active > 0)
             .all()
             .then({ (resultArray) -> EventLoopFuture<[PublicListing]> in
                 return req.future(ListingController.publicListings(from: resultArray, request: req))
