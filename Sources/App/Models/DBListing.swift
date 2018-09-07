@@ -136,6 +136,8 @@ extension DBListing {
         let differentDescription = description != feedSub.description
         let differentEmail = email != feedSub.email
         let differentPhone = phone != feedSub.salesOffice.phone?.phoneString ?? ""
+        let correctPriceText = Int(feedSub.priceLow ?? 0) > 0 ? "From the" : "Coming Soon"
+        let differentPriceText =  priceTxt != correctPriceText
         let differentPriceLow = priceLow != Int(feedSub.priceLow ?? 0)
         let differentPriceHigh = priceHigh != Int(feedSub.priceHigh ?? 0)
         let differentSizeLow = sqftLow != feedSub.squareFeetLow ?? 0
@@ -152,7 +154,7 @@ extension DBListing {
         let differentSchoolDistrictName = schoolDistrictName != feedSub.schools?.first?.districtName ?? ""
         let differentPropType = propType != feedSub.plans?.first?.type.rawValue ?? ""
         
-        return differentName || differentCity || differentCounty || differentState || differentZip || differentDescription || differentEmail || differentPhone || differentPriceLow || differentPriceHigh || differentSizeLow || differentSizeHigh || differentBedLow || differentBedHigh || differentBathLow || differentBathHigh || differentLat || differentLng || differentPhoto || differentWebsite || differentStatus || differentSchoolDistrictName || differentPropType
+        return differentName || differentCity || differentCounty || differentState || differentZip || differentDescription || differentEmail || differentPhone || differentPriceLow || differentPriceHigh || differentSizeLow || differentSizeHigh || differentBedLow || differentBedHigh || differentBathLow || differentBathHigh || differentLat || differentLng || differentPhoto || differentWebsite || differentStatus || differentSchoolDistrictName || differentPropType || differentPriceText
     }
     
     func update(from feedSub: BDXSubdivision) {
@@ -170,6 +172,7 @@ extension DBListing {
         photo = feedSub.images?.first(where: {$0.isPreferred})?.url.absoluteString ?? feedSub.images?.first(where: {$0.position == 1})?.url.absoluteString ?? ""
         priceLow = Int(feedSub.priceLow ?? 0)
         priceHigh = Int(feedSub.priceHigh ?? 0)
+        priceTxt = priceLow > 0 ? "From the" : "Coming Soon"
         sqftLow = feedSub.squareFeetLow ?? 0
         sqftHigh = feedSub.squareFeetHigh ?? 0
         bedLow = feedSub.plans?.reduce(feedSub.plans?.first?.bedrooms ?? 0, {min($0, $1.bedrooms)}) ?? 0
