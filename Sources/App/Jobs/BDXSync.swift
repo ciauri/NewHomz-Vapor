@@ -107,7 +107,6 @@ class BDXSync: Worker {
             }).then({ (image) -> EventLoopFuture<Void> in
                 return self.future()
             })
-        
     }
     
     private func updateBuilders(toUpdate builderMap: [Int:DBBuilder], with feedBuilders: [BDXBuilder], dbConnection: DatabaseConnectable) -> EventLoopFuture<Void> {
@@ -157,7 +156,28 @@ class BDXSync: Worker {
                 self.logger?.info("Adding \(toAdd.count) listings for \(builder.builder)")
                 return EventLoopFuture<Void>.andAll(toAdd.compactMap({self.insertNewListing(with: $0, builder: builder, dbConnection: dbConnection)}),
                                                     eventLoop: self.eventLoop)
+            }).then({ (_) -> EventLoopFuture<Void> in
+                self.logger?.info("Updating images for updated listings for \(builder.builder)")
+                return EventLoopFuture<Void>.andAll(toUpdate.compactMap({ (listing) -> EventLoopFuture<Void> in
+                    let bdxListing = bdxListingMap[listing.feedHash]!
+                    return self.updateImages(for: listing, using: bdxListing, dbConnection: dbConnection)
+                }), eventLoop: self.eventLoop)
             })
+    }
+    
+    private func updateImages(for listing: DBListing, using sub: BDXSubdivision, dbConnection: DatabaseConnectable) -> EventLoopFuture<Void> {
+        return (try? listing.gallery.query(on: dbConnection)
+            .delete()
+            .then { (_) -> EventLoopFuture<Void> in
+                if let images = sub.images {
+                    self.logger?.info("Inserting \(images.count) images for \(sub.name)")
+                    let futures = images.map({self.insertNewImage(with: $0, listing: listing, dbConnection: dbConnection)})
+                    return EventLoopFuture<Void>.andAll(futures, eventLoop: self.future().eventLoop)
+                } else {
+                    return self.future()
+                }
+        }) ?? future()
+
     }
     
     
