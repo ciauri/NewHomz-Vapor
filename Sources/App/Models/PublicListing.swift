@@ -25,7 +25,7 @@ struct PublicListing: Content {
     let propertyType: String
     let lotSize: Int
     let youtubeID: String
-    let masterPlanID: String?
+    let masterPlanID: Int?
     
     var builder: PublicBuilder!
     var masterPlan: PublicMasterPlan?
@@ -57,12 +57,11 @@ struct FloatRange: Content {
 }
 
 extension PublicListing {
-    mutating func updateLinks(with request: Request) {
-        builder?.updateLinks(with: request)
-        links = [
-            "href":request.baseURL.appendingPathComponent("listing").appendingPathComponent("\(id!)").absoluteString,
-            "gallery":request.baseURL.appendingPathComponent("listing").appendingPathComponent("\(id!)").appendingPathComponent("gallery").absoluteString,
-            "floorplans":request.baseURL.appendingPathComponent("listing").appendingPathComponent("\(id!)").appendingPathComponent("floorplans").absoluteString,
+    static func links(with id: Int, for request: Request) -> [String:String] {
+        return [
+            "href":request.baseURL.appendingPathComponent("listing").appendingPathComponent("\(id)").absoluteString,
+            "gallery":request.baseURL.appendingPathComponent("listing").appendingPathComponent("\(id)").appendingPathComponent("gallery").absoluteString,
+            "floorplans":request.baseURL.appendingPathComponent("listing").appendingPathComponent("\(id)").appendingPathComponent("floorplans").absoluteString,
         ]
     }
 }
@@ -90,8 +89,34 @@ extension DBListing {
                              propertyType: propType,
                              lotSize: lot,
                              youtubeID: vid,
-                             masterPlanID: masterplanId?.toString,
+                             masterPlanID: masterplanId,
                              builder: nil, masterPlan: nil, links: nil)
+    }
+    
+    func publicListing(with builder: PublicBuilder, masterPlan: PublicMasterPlan?, request: Request) -> PublicListing {
+        return PublicListing(id: id,
+                             name: listing,
+                             status: active,
+                             description: description,
+                             priceText: priceTxt,
+                             priceRange: IntRange(min: priceLow, max: priceHigh),
+                             squareFeetRange: IntRange(min: sqftLow, max: sqftHigh),
+                             bedRange: IntRange(min: bedLow, max: bedHigh),
+                             bathRange: FloatRange(min: bathLow, max: bathHigh),
+                             photo: photo.hasPrefix("http") ? photo : nil,
+                             location: Location(coordinate: Coordinate(latitude: lat, longitude: lng),
+                                                city: city,
+                                                state: state,
+                                                county: county,
+                                                schoolDistrict: schoolDistrictName,
+                                                postalCode: String(zip)),
+                             website: website.hasPrefix("http") ? website : nil,
+                             phoneNumber: phone,
+                             propertyType: propType,
+                             lotSize: lot,
+                             youtubeID: vid,
+                             masterPlanID: masterplanId,
+                             builder: builder, masterPlan: masterPlan, links: PublicListing.links(with: id!, for: request))
     }
 }
 

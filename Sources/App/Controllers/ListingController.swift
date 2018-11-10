@@ -150,16 +150,25 @@ final class ListingController: RouteCollection {
 
     
     static func publicListings(from results: [((DBListing, DBBuilder), DBMasterPlan)], request: Request) -> [PublicListing] {
+        let builderCache = createBuilderCache(from: results, request: request)
         return results.map({ (result) -> PublicListing in
-            var listing = result.0.0.publicListing
-            listing.builder = result.0.1.publicBuilder(with: request)
-            // There is currently no good way to left join to an optional value with fluent. This is the workaround.
-            if result.1.publicMasterPlan.id != nil {
-                listing.masterPlan = result.1.publicMasterPlan
-            }
-            listing.updateLinks(with: request)
+            let masterPlan = (result.1.id ?? 0) > 0 ? result.1.publicMasterPlan : nil
+            let listing = result.0.0.publicListing(with: builderCache[result.0.0.builderID]!, masterPlan: masterPlan, request: request)
             return listing
         })
+    }
+    static func createBuilderCache(from results: [((DBListing, DBBuilder), DBMasterPlan)], request: Request) -> [Int: PublicBuilder] {
+        var cache: [Int:PublicBuilder] = [:]
+        for result in results {
+            let dbBuilder = result.0.1
+            guard let builderID = dbBuilder.id else {
+                continue
+            }
+            if cache[builderID] == nil {
+                cache[builderID] = dbBuilder.publicBuilder(with: request)
+            }
+        }
+        return cache
     }
     
     static func publicGallery(from results: [DBGalleryImage]) -> [PublicGalleryImage] {

@@ -49,7 +49,7 @@ final class DBListing: MySQLModel {
     var status: String
     var schoolDistrictName: String
     
-    init(id: Int? = nil, listing: String, builderID: Int, active: Int, city: String, county: String, state: String, zip: Int, description: String, email: String, phone: String, priceTxt: String, priceLow: Int, priceHigh: Int, sqftLow: Int, sqftHigh: Int, bedLow: Int, bedHigh: Int, bathLow: Float, bathHigh: Float, hoa: Int, tax: Int, payment: Int, lot: Int, lat: Double, lng: Double, vid: String, photo: String, photo2: String, website: String, masterplanId: Int, status: String, schoolDistrictName: String, propType: String, sourceID: String) {
+    init(id: Int? = nil, listing: String, builderID: Int, active: Int, city: String, county: String, state: String, zip: Int, description: String, email: String, phone: String, priceTxt: String, priceLow: Int, priceHigh: Int, sqftLow: Int, sqftHigh: Int, bedLow: Int, bedHigh: Int, bathLow: Float, bathHigh: Float, hoa: Int, tax: Int, payment: Int, lot: Int, lat: Double, lng: Double, vid: String, photo: String, photo2: String, website: String, masterplanId: Int?, status: String, schoolDistrictName: String, propType: String, sourceID: String) {
         self.id = id
         self.builderID = builderID
         builder = ""
@@ -117,7 +117,7 @@ extension BDXSubdivision {
                          lat: addressToUse.geocode?.latitude.nhzRounded ?? 0, lng: addressToUse.geocode?.longitude.nhzRounded ?? 0,
                          vid: "", photo: (images?.first(where: {$0.isPreferred}) ?? images?.first(where: {$0.position == 1}))?.url.absoluteString ?? "", photo2: "",
                          website: plans?.first?.website ?? "",
-                         masterplanId: 0,
+                         masterplanId: nil,
                          status: status.rawValue,
                          schoolDistrictName: schools?.first?.districtName ?? "",
                          propType: plans?.first?.type.rawValue ?? "",

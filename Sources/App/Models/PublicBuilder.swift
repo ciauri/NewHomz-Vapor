@@ -29,9 +29,6 @@ extension PublicBuilder {
             "listingCount":request.baseURL.appendingPathComponent("builder").appendingPathComponent("\(id)").appendingPathComponent("listings").appendingPathComponent("count").absoluteString,
         ]
     }
-    mutating func updateLinks(with request: Request) {
-        links = PublicBuilder.linksWithID(id: id!, request: request)
-    }
 }
 
 
