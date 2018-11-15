@@ -22,6 +22,7 @@ struct PublicEntryPoint: Content {
             "featuredListings": req.baseURL.appendingPathComponent("listings").appendingPathComponent("featured").absoluteString,
             "listingCount": req.baseURL.appendingPathComponent("listings").appendingPathComponent("count").absoluteString,
             "listingsInRegion": req.baseURL.appendingPathComponent("listings").appendingPathComponent("inRegion").absoluteString,
+            "init": "https://s3.amazonaws.com/nhmzj/listingIndex.json"
         ]
     }
 }
